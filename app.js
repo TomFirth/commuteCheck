@@ -1,51 +1,122 @@
+const http = require('http')
+const map = require('google_directions')
+const nodemailer = require('nodemailer')
 const TwitterPackage = require('twitter')
-const port = process.env.PORT || 8080
-require('dotenv').config()
+const Waze = require('waze')
+
+const connect = require('./config/connect')
+const details = require('./config/details')
+
+http.createServer((req, res) => {
+  if (req.url === '/auth') {
+    // authentication stuff
+    res.writeHead(200, {'Content-Type': 'text/html'})
+    res.write('Authentication')
+    res.end()
+  } else {
+    res.writeHead(200, {'Content-Type': 'text/html'})
+    res.write('Hello World!')
+    commuteCheck()
+    res.end()
+  }
+}).listen(8080)
 
 const Twitter = new TwitterPackage({
-  consumer_key: process.env.CONSUMER_KEY,
-  consumer_secret: process.env.CONSUMER_SECRET,
-  access_token_key: process.env.ACCESS_TOKEN,
-  access_token_secret: process.env.ACCESS_TOKEN_SECRET
+  consumer_key: connect.twitter.consumerKey,
+  consumer_secret: connect.twitter.consumerSecret,
+  access_token_key: connect.twitter.accessToken,
+  access_token_secret: connect.twitter.AccessTokenSecret
 })
 
-const getDate = async () => {
+const getDateTime = async () => {
   try {
-    // stuff
-  } catch(err){
-    console.error(err) 
+    const now = new Date()
+    const month = now.getUTCMonth() + 1
+    const day = now.getUTCDate()
+    const year = now.getUTCFullYear()
+    const date = year + '-' + month + '-' + day
+    return {
+      date,
+      time: now.getTime()
+    }
+  } catch (err) {
+    console.error('++ getDateTime', err)
   }
 }
 
-const getKeywords = async () => {
+const getParams = async () => {
   try {
-    // stuff
-  } catch(err){
-    console.error(err) 
+    const dateTime = getDateTime()
+    let origin = details.home.location
+    let destination = details.work.location
+    if (dateTime.time > details.home.leave) {
+      origin = details.work.location
+      destination = details.home.location
+    }
+    return {
+      google: {
+        origin,
+        destination,
+        key: connect.google.apiKey,
+        mode: 'driving',
+        avoid: 'none',
+        language: 'en',
+        units: 'imperial'
+      }
+    }
+  } catch (err) {
+    console.error('++ getParams', err)
+  }
+}
+
+const requestGoogle = async () => {
+  try {
+    const params = getParams()
+    console.log('++ params.google', params.google)
+    map.getDuration(params.google, (err, data) => {
+      if (err) {
+        console.log('+ requestGoogle', err)
+        return 1
+      }
+      console.log('requestGoogle data', data)
+    })
+  } catch (err) {
+    console.log('++ requestGoogle', err)
   }
 }
 
 const requestTwitter = async () => {
-  // check twitter for tweets
   try {
-    // stuff
-    client.get(path, params, callback)
-  } catch(err){
-    console.error(err) 
+    const path = ''
+    const params = {}
+    Twitter.get(path, params, () => {
+      // deal with Twitter stuff
+    })
+  } catch (err) {
+    console.error('++ requestTwitter', err)
   }
 }
 
-const emailUser = async () => {
+const requestWaze = async () => {
   try {
-    // stuff
-  } catch(err){
-    console.error(err) 
+    return 'requestWaze'
+  } catch (err) {
+    console.error('++ requestWaze', err)
+  }
+}
+
+const notifyUser = async () => {
+  try {
+    return 'notifyUser'
+  } catch (err) {
+    console.error(err)
   }
 }
 
 const commuteCheck = async () => {
-  console.log(await getDate())
-  console.log(await getKeywords())
+  console.log(await requestGoogle())
   console.log(await requestTwitter())
+  console.log(await requestWaze())
+  console.log(await notifyUser())
   return 'all done'
-}()
+}

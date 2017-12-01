@@ -4,12 +4,20 @@
   "description": "Check for keywords that warn against accidents on my commute",
   "main": "app.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "node app.js",
+    "dev": "nodemon app.js",
     "test": "standard"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TomFirth/commuteCheck.git"
+  },
+  "license": "ISC",
   "dependencies": {
-    "dotenv": "^4.0.0",
-    "twitter": "^1.7.1"
+    "google_directions": "0.6.0",
+    "nodemailer": "4.4.0",
+    "twitter": "^1.7.1",
+    "waze": "^0.3.0"
   },
   "devDependencies": {
     "standard": "*",
