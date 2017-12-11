@@ -1,0 +1,17 @@
+{
+  "google": {
+    "apiKey": ""
+  },
+  "nodemailer": {
+    
+  },
+  "twitter": {
+    "consumerKey": "",
+    "consumerSecret": "",
+    "accessToken": "",
+    "accessTokenSecret": ""
+  },
+  "waze": {
+
+  }
+}

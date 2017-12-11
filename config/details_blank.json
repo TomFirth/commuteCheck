@@ -1,0 +1,21 @@
+{
+  "user": {
+    "email": "",
+    "phone": ""
+  },
+  "twitter": {
+    "frequency": 2
+  },
+  "home": {
+    "leave": "",
+    "postcode": "<postcode>",
+    "keywords": [ "" ],
+    "duration": ""
+  },
+  "work": {
+    "leave": "",
+    "postcode": "<postcode>",
+    "keywords": [ "" ],
+    "duration": ""
+  }
+}
