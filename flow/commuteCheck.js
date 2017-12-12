@@ -1,10 +1,18 @@
-const map = require('google_directions')
 // const nodemailer = require('nodemailer')
 // const TwitterPackage = require('twitter')
 // const Waze = require('waze')
 
 const connect = require('../config/connect')
 const details = require('../config/details')
+const excludes = require('../config/excludes')
+
+let output = {}
+let steps = []
+
+const googleMaps = require('@google/maps')
+.createClient({
+  key: connect.google.apiKey
+})
 
 // const Twitter = new TwitterPackage({
 //   consumer_key: connect.twitter.consumerKey,
@@ -22,10 +30,6 @@ flow.getDateTime = async () => {
     const day = now.getUTCDate()
     const year = now.getUTCFullYear()
     const date = year + '-' + month + '-' + day
-    console.log({
-      date,
-      time: now.getTime()
-    })
     return {
       date,
       time: now.getTime()
@@ -35,8 +39,9 @@ flow.getDateTime = async () => {
   }
 }
 
-flow.getParams = async () => {
+flow.requestGoogle = async () => {
   try {
+    console.log('Google Request')
     const dateTime = flow.getDateTime()
     let origin = details.home.postcode
     let destination = details.work.postcode
@@ -44,32 +49,21 @@ flow.getParams = async () => {
       origin = details.work.postcode
       destination = details.home.postcode
     }
-    return {
-      google: {
-        origin,
-        destination,
-        key: connect.google.apiKey,
-        mode: 'driving',
-        avoid: 'none',
-        language: 'en',
-        units: 'imperial'
+    return await googleMaps.directions({
+      origin,
+      destination
+    }, (err, response) => {
+      if (!err) {
+        const legs = response.json.routes[0].legs[0]
+        output['duration'] = legs.duration.text
+        output['from'] = legs.start_address
+        output['to'] = legs.end_address
+        legs.steps.map((step, instruction) => {
+          steps.push(step.html_instructions)
+        })
+        output['steps'] = steps
+        console.log('++ output', output)
       }
-    }
-  } catch (err) {
-    console.error('++ getParams', err)
-  }
-}
-
-flow.requestGoogle = async () => {
-  try {
-    const params = flow.getParams()
-    console.log('++ params.google', params.google)
-    map.getDuration(params.google, (err, data) => {
-      if (err) {
-        console.log('+ requestGoogle', err)
-        return 1
-      }
-      console.log('requestGoogle data', data)
     })
   } catch (err) {
     console.log('++ requestGoogle', err)
@@ -78,6 +72,7 @@ flow.requestGoogle = async () => {
 
 // flow.requestTwitter = async () => {
 //   try {
+//     console.log('Twitter Request')
 //     const path = ''
 //     const params = {}
 //     Twitter.get(path, params, () => {
@@ -90,6 +85,7 @@ flow.requestGoogle = async () => {
 
 // flow.requestWaze = async () => {
 //   try {
+//     console.log('Waze Request')
 //     return 'requestWaze'
 //   } catch (err) {
 //     console.error('++ requestWaze', err)
@@ -98,6 +94,7 @@ flow.requestGoogle = async () => {
 
 // flow.notifyUser = async () => {
 //   try {
+//     console.log('Sending data')
 //     return 'notifyUser'
 //   } catch (err) {
 //     console.error(err)
@@ -105,9 +102,9 @@ flow.requestGoogle = async () => {
 // }
 
 flow.commuteCheck = async () => {
-  console.log(await flow.requestGoogle())
+  console.log('++ requestGoogle', await flow.requestGoogle())
   // console.log(await flow.requestTwitter())
   // console.log(await flow.requestWaze())
   // console.log(await flow.notifyUser())
-  return 'all done'
+  console.log('all done')
 }

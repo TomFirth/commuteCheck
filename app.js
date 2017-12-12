@@ -1,6 +1,7 @@
 const http = require('http')
 const flow = require('./flow/commuteCheck')
 
+flow.commuteCheck()
 http.createServer((req, res) => {
   if (req.url === '/auth') {
     // authentication stuff
@@ -8,8 +9,9 @@ http.createServer((req, res) => {
     res.write('Authentication')
     res.end()
   } else {
+    // make new request now
     res.writeHead(200, {'Content-Type': 'text/html'})
-    res.write('Hello World!')
+    res.write('Running check')
     flow.commuteCheck()
     res.end()
   }
