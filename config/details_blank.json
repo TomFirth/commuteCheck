@@ -1,17 +1,22 @@
 {
-  "user": {
-    "email": ""
-  },
-  "twitter": {
-    "count": 100
-  },
-  "duration": "",
+  "duration": "00:00",
+  "email": "",
   "home": {
-    "leave": "",
-    "postcode": ""
+    "leave": "00:00",
+    "postcode": "",
+    "lat": "",
+    "long": ""
+  },
+  "lang": "",
+  "radius": "20mi",
+  "twitter": {
+    "count": 100,
+    "hoursBefore": 3
   },
   "work": {
-    "leave": "",
-    "postcode": ""
+    "leave": "00:00",
+    "postcode": "",
+    "lat": "",
+    "long": ""
   }
 }

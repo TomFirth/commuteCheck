@@ -11,8 +11,5 @@
     "consumerSecret": "",
     "accessToken": "",
     "accessTokenSecret": ""
-  },
-  "waze": {
-
   }
 }

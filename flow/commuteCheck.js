@@ -1,11 +1,14 @@
 const nodemailer = require('nodemailer')
 const Twitter = require('twitter')
 
+const utilities = require('../libs/utilities')
+
 const connect = require('../config/connect')
 const details = require('../config/details')
-// const excludes = require('../config/excludes')
 
-let output = {}
+let output = {
+  twitter: []
+}
 let steps = []
 
 const googleMaps = require('@google/maps')
@@ -18,42 +21,18 @@ const TwitterClient = new Twitter({
   consumer_secret: connect.twitter.consumerSecret,
   access_token_key: connect.twitter.accessToken,
   access_token_secret: connect.twitter.accessTokenSecret,
-  timeout_ms: 60 * 1000 // optional HTTP request timeout to apply to all requests
+  timeout_ms: 60 * 1000
 })
 
 const flow = module.exports = {}
 
-flow.getDateTime = async () => {
-  try {
-    const now = new Date()
-    const month = now.getUTCMonth() + 1
-    const day = now.getUTCDate()
-    const year = now.getUTCFullYear()
-    const date = year + '-' + month + '-' + day
-    return {
-      date,
-      time: now.getTime()
-    }
-  } catch (err) {
-    console.error('++ getDateTime', err)
-  }
-}
-
 flow.requestGoogle = async () => {
   try {
     console.log('Google Request')
-    // move to utilities
-    const dateTime = flow.getDateTime()
-    let origin = details.home.postcode
-    let destination = details.work.postcode
-    if (dateTime.time > details.home.leave) {
-      origin = details.work.postcode
-      destination = details.home.postcode
-    }
-    // move to utilities
-    return await googleMaps.directions({
-      origin,
-      destination
+    const loc = utilities.checkOrigin()
+    googleMaps.directions({
+      origin: loc.origin,
+      destination: loc.destination
     }, (err, response) => {
       if (!err) {
         const legs = response.json.routes[0].legs[0]
@@ -71,7 +50,7 @@ flow.requestGoogle = async () => {
         if (details.duration < output.duration) {
           // Google estimates that your expected travel time will be longer than normal.
         }
-        // console.log('++ output', output)
+        // return output
       }
     })
   } catch (err) {
@@ -82,14 +61,29 @@ flow.requestGoogle = async () => {
 flow.requestTwitter = async () => {
   try {
     console.log('Twitter Request')
-    // search tweets by date
-    // search tweets by location
+    const loc = utilities.checkOrigin()
     // loop through twitter request with Google response keywords
-    TwitterClient.get('search/tweets', {q: 'M20', count: details.twitter.count}, (error, tweets, response) => {
+    const twitterParams = {
+      count: details.twitter.count,
+      geocode: loc.lat + loc.long + details.radius,
+      lang: details.lang,
+      q: 'M20',
+      result_type: 'recent'
+    }
+    TwitterClient.get('search/tweets', twitterParams, (error, tweets, response) => {
       if (error) {
         console.log('++ requestTwitter get', error)
       }
-      console.log(tweets)
+      const hoursBefore = utilities.hoursBefore()
+      tweets.statuses.map(tweet => {
+        console.log(tweet.created_at)
+        if (tweet.created_at < hoursBefore) {
+          output['twitter'].push({
+            text: tweet.text
+          })
+        }
+      })
+      // return output
     })
   } catch (err) {
     console.error('++ requestTwitter flow', err)
@@ -109,8 +103,8 @@ flow.notifyUser = async () => {
       }
     })
     const mailOptions = {
-      from: `"commuteCheck" <${details.user.email}>`,
-      to: `${details.user.email}`,
+      from: `"commuteCheck" <${details.email}>`,
+      to: `${details.email}`,
       subject: 'commuteCheck',
       text: 'test',
       html: '<b>test</b>'
@@ -131,5 +125,5 @@ flow.commuteCheck = async () => {
   console.log(await flow.requestGoogle())
   console.log(await flow.requestTwitter())
   console.log(await flow.notifyUser())
-  console.log('all done')
+  console.log('All done')
 }
