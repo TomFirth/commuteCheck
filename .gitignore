@@ -4,4 +4,3 @@ config/connect.json
 config/details.json
 *.log
 node_modules
-TODO.md

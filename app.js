@@ -9,7 +9,6 @@ http.createServer((req, res) => {
     res.write('Authentication')
     res.end()
   } else {
-    // make new request now
     res.writeHead(200, {'Content-Type': 'text/html'})
     res.write('Running check')
     flow.commuteCheck()
