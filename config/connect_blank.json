@@ -3,7 +3,8 @@
     "apiKey": ""
   },
   "nodemailer": {
-    
+    "email": "@gmail.com",
+    "password": ""
   },
   "twitter": {
     "consumerKey": "",

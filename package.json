@@ -15,9 +15,8 @@
   "license": "ISC",
   "dependencies": {
     "@google/maps": "^0.4.5",
-    "nodemailer": "4.4.0",
-    "twitter": "^1.7.1",
-    "waze": "^0.3.0"
+    "nodemailer": "^4.4.0",
+    "twitter": "^1.7.1"
   },
   "devDependencies": {
     "standard": "*",

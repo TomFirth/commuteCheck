@@ -1,6 +1,5 @@
-// const nodemailer = require('nodemailer')
+const nodemailer = require('nodemailer')
 const Twitter = require('twitter')
-// const Waze = require('waze')
 
 const connect = require('../config/connect')
 const details = require('../config/details')
@@ -97,28 +96,40 @@ flow.requestTwitter = async () => {
   }
 }
 
-// flow.requestWaze = async () => {
-//   try {
-//     console.log('Waze Request')
-//     return 'requestWaze'
-//   } catch (err) {
-//     console.error('++ requestWaze', err)
-//   }
-// }
+flow.notifyUser = async () => {
+  try {
+    console.log('Sending data')
+    let transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
+      auth: {
+        user: connect.nodemailer.email,
+        pass: connect.nodemailer.password
+      }
+    })
+    const mailOptions = {
+      from: `"commuteCheck" <${details.user.email}>`,
+      to: `${details.user.email}`,
+      subject: 'commuteCheck',
+      text: 'test',
+      html: '<b>test</b>'
+    }
 
-// flow.notifyUser = async () => {
-//   try {
-//     console.log('Sending data')
-//     return 'notifyUser'
-//   } catch (err) {
-//     console.error(err)
-//   }
-// }
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        return console.log(error)
+      }
+      console.log('Message sent:', info.response)
+    })
+  } catch (err) {
+    console.error(err)
+  }
+}
 
 flow.commuteCheck = async () => {
   console.log(await flow.requestGoogle())
   console.log(await flow.requestTwitter())
-  // console.log(await flow.requestWaze())
-  // console.log(await flow.notifyUser())
+  console.log(await flow.notifyUser())
   console.log('all done')
 }
