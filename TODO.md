@@ -2,14 +2,12 @@
 
 - ~Google direction request~
 - ~Deal with Google response~
-- Filter steps into keywords
-- compare adjusted travel time against expected duration
-- Twitter request
-- Twitter response
-- Waze request
-- Waze response
+- ~Filter steps into keywords~
+- Compare adjusted travel time against expected duration
+- ~Twitter request~
+- ~Twitter response~
 - Configure nodemailer template
-- NodeMailer send
+- ~NodeMailer send~
 - Set up node-cron (adjusted times from config)
 - Set up heroku
 - Push notifications to mobile?

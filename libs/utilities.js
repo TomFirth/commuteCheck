@@ -1,7 +1,7 @@
 const moment = require('moment')
 
 const details = require('../config/details')
-// const excludes = require('../config/excludes')
+const excludes = require('../config/excludes')
 
 const utilities = module.exports = {}
 
@@ -31,11 +31,20 @@ utilities.checkOrigin = () => {
   }
 }
 
-utilities.filterGoogleResponse = () => {
-  // filter Google steps into keywords
-  // ^^ if isNumber == junction
-  // exclude words
-  // exclude villages, towns and cities
+utilities.filterGoogleResponse = (string) => {
+  let stringArray = []
+  string = string.match(/<b>(.*?)<\/b>/g)
+  .map(string => {
+    string = string.replace(/<\/?b>/g, '')
+    if (excludes.indexOf(string) === -1) {
+      if (!isNaN(string)) {
+        string = 'Junction ' + string
+      }
+      stringArray.push(string)
+    }
+  })
+  string = stringArray.join(' ')
+  return string
 }
 
 utilities.hoursBefore = () => {
@@ -45,4 +54,10 @@ utilities.hoursBefore = () => {
 
 utilities.expectedTravelDuration = () => {
   // get default travel duration and add 50%?
+  return details.duration
+}
+
+utilities.timeDifference = (expected) => {
+  // expected - details.duration
+  return expected
 }

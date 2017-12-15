@@ -10,6 +10,7 @@ let output = {
   twitter: []
 }
 let steps = []
+let keywordArray = []
 
 const googleMaps = require('@google/maps')
 .createClient({
@@ -30,6 +31,7 @@ flow.requestGoogle = async () => {
   try {
     console.log('Google Request')
     const loc = utilities.checkOrigin()
+    const travelDuration = utilities.expectedTravelDuration()
     googleMaps.directions({
       origin: loc.origin,
       destination: loc.destination
@@ -44,15 +46,20 @@ flow.requestGoogle = async () => {
           output['warnings'] = warnings
         }
         legs.steps.map((step, instruction) => {
-          steps.push(step.html_instructions)
+          let keyword = utilities.filterGoogleResponse(step.html_instructions)
+          keywordArray.push(keyword)
+          keywordArray = keywordArray.filter((x, i, a) => a.indexOf(x) === i)
         })
+        steps.push(keywordArray)
         output['steps'] = steps
-        if (details.duration < output.duration) {
-          // Google estimates that your expected travel time will be longer than normal.
+        output['expected'] = 'Normal expected travel time'
+        if (travelDuration > output.duration) {
+          let timeDiff = utilities.timeDifference(output.duration)
+          output['expected'] = `Your journey is estimated to be ${timeDiff} longer than normal.`
         }
-        // return output
       }
     })
+    return output
   } catch (err) {
     console.log('++ requestGoogle', err)
   }
@@ -67,9 +74,11 @@ flow.requestTwitter = async () => {
       count: details.twitter.count,
       geocode: loc.lat + loc.long + details.radius,
       lang: details.lang,
-      q: 'M20',
       result_type: 'recent'
     }
+    // let searchKeywords = utilities.filterGoogleResponse()
+    // searchKeywords.map(keyword => {})
+    twitterParams['q'] = 'M20'
     TwitterClient.get('search/tweets', twitterParams, (error, tweets, response) => {
       if (error) {
         console.log('++ requestTwitter get', error)
@@ -77,14 +86,14 @@ flow.requestTwitter = async () => {
       const hoursBefore = utilities.hoursBefore()
       tweets.statuses.map(tweet => {
         console.log(tweet.created_at)
-        if (tweet.created_at < hoursBefore) {
+        if (tweet.created_at > hoursBefore) {
           output['twitter'].push({
             text: tweet.text
           })
         }
       })
-      // return output
     })
+    return output
   } catch (err) {
     console.error('++ requestTwitter flow', err)
   }
@@ -123,7 +132,7 @@ flow.notifyUser = async () => {
 
 flow.commuteCheck = async () => {
   console.log(await flow.requestGoogle())
-  console.log(await flow.requestTwitter())
-  console.log(await flow.notifyUser())
+  // console.log(await flow.requestTwitter())
+  // console.log(await flow.notifyUser())
   console.log('All done')
 }
