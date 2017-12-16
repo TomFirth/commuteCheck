@@ -52,7 +52,7 @@ utilities.filterGoogleResponse = (string) => {
 // work out how much time before now to search
 utilities.hoursBefore = () => {
   let dateTime = utilities.getDateTime()
-  return moment(dateTime, 'HH:mm').subtract(details.twitter.hoursBefore, 'hours')
+  return moment(dateTime.time, 'HH:mm').subtract(details.twitter.hoursBefore, 'hours')
 }
 
 // expected duration with a percentage increase
@@ -65,4 +65,15 @@ utilities.expectedTravelDuration = () => {
 utilities.timeDifference = (expected) => {
   let timeDiff = expected - (details.duration).toFixed(2)
   return (timeDiff).toFixed(2)
+}
+
+// split 24hr time into hours and minutes
+utilities.timeForCron = (time) => {
+  var timeArray = time.split(':')
+  var hour = parseInt(timeArray[0])
+  var minutes = parseInt(timeArray[1])
+  return {
+    hour,
+    minutes
+  }
 }

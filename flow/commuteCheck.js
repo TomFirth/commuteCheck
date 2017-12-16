@@ -126,9 +126,11 @@ flow.notifyUser = async () => {
   }
 }
 
-flow.commuteCheck = async () => {
+flow.commuteCheck = async (notify) => {
   console.log(await flow.requestGoogle())
   console.log(await flow.requestTwitter())
-  // console.log(await flow.notifyUser())
+  if (notify) {
+    console.log(await flow.notifyUser())
+  }
   console.log('All done')
 }
