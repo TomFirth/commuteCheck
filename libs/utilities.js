@@ -12,6 +12,7 @@ utilities.getDateTime = () => {
   }
 }
 
+// travelling to work or home?
 utilities.checkOrigin = () => {
   const dateTime = utilities.getDateTime()
   let origin
@@ -31,6 +32,7 @@ utilities.checkOrigin = () => {
   }
 }
 
+// turn a Google direction instruction into a string of keywords
 utilities.filterGoogleResponse = (string) => {
   let stringArray = []
   string = string.match(/<b>(.*?)<\/b>/g)
@@ -47,17 +49,20 @@ utilities.filterGoogleResponse = (string) => {
   return string
 }
 
+// work out how much time before now to search
 utilities.hoursBefore = () => {
   let dateTime = utilities.getDateTime()
   return moment(dateTime, 'HH:mm').subtract(details.twitter.hoursBefore, 'hours')
 }
 
+// expected duration with a percentage increase
 utilities.expectedTravelDuration = () => {
-  // get default travel duration and add 50%?
-  return details.duration
+  let expectedTravelDuration = (details.duration).toFixed(2) * 25 / 100
+  return parseFloat((details.duration).toFixed(2)) + parseFloat(expectedTravelDuration)
 }
 
+// difference in minutes and seconds between normal and expected travel durations
 utilities.timeDifference = (expected) => {
-  // expected - details.duration
-  return expected
+  let timeDiff = expected - (details.duration).toFixed(2)
+  return (timeDiff).toFixed(2)
 }
