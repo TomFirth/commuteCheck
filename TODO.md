@@ -3,14 +3,11 @@
 - ~Google direction request~
 - ~Deal with Google response~
 - ~Filter steps into keywords~
-- Compare adjusted travel time against expected duration
+- ~Compare adjusted travel time against expected duration~
 - ~Twitter request~
 - ~Twitter response~
-- Configure nodemailer template
 - ~NodeMailer send~
-- Set up node-cron (adjusted times from config)
-- Set up heroku
-- Push notifications to mobile?
-- Can access Twitter streaming api while on the move?
-- Can increase request intervals - if there are any changes, notify user
-- Make Android webview
+- ~Set up node-cron (adjusted times from config)~
+- Configure nodemailer template
+- Amend config to read from Heroku
+- Set up Heroku

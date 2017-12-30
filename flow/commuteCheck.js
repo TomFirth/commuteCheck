@@ -12,9 +12,11 @@ const googleMaps = require('@google/maps')
 })
 
 let output = {
+  keywords: [],
+  steps: [],
   twitter: []
 }
-let steps = []
+let keywords = []
 let keywordArray = []
 
 const TwitterClient = new Twitter({
@@ -27,47 +29,41 @@ const TwitterClient = new Twitter({
 
 const flow = module.exports = {}
 
-flow.requestGoogle = async () => {
-  try {
-    console.log('Google Request')
-    const loc = utilities.checkOrigin()
-    const travelDuration = utilities.expectedTravelDuration()
-    googleMaps.directions({
-      origin: loc.origin,
-      destination: loc.destination
-    }, (err, response) => {
-      if (!err) {
-        const legs = response.json.routes[0].legs[0]
-        const warnings = response.json.routes[0].warnings
-        output['duration'] = (legs.duration.value / 60).toFixed(2)
-        output['from'] = legs.start_address
-        output['to'] = legs.end_address
-        if (warnings.length > 0) {
-          output['warnings'] = warnings
-        }
-        legs.steps.map((step, instruction) => {
-          let keyword = utilities.filterGoogleResponse(step.html_instructions)
-          keywordArray.push(keyword)
-          keywordArray = keywordArray.filter((x, i, a) => a.indexOf(x) === i)
-        })
-        steps.push(keywordArray)
-        output['steps'] = steps
-        output['expected'] = 'Normal expected travel time'
-        if (travelDuration.toFixed(2) < output.duration) {
-          let timeDiff = utilities.timeDifference(output.duration)
-          output['expected'] = `Your journey is estimated to be ${timeDiff} longer than normal.`
-        }
-      }
+async function requestGoogle (output) {
+  const loc = utilities.checkOrigin()
+  const travelDuration = utilities.expectedTravelDuration()
+  await googleMaps.directions({
+    origin: loc.origin,
+    destination: loc.destination
+  }, (error, response) => {
+    if (error) console.log(error)
+    const routes = response.json.routes[0]
+    routes.legs[0].steps.map((step, instruction) => {
+      output.steps.push(step.html_instructions)
+      let keyword = utilities.filterGoogleResponse(step.html_instructions)
+      keywordArray.push(keyword)
+      keywordArray = keywordArray.filter((x, i, a) => a.indexOf(x) === i)
     })
-    return output
-  } catch (err) {
-    console.log('++ requestGoogle', err)
-  }
+    keywords.push(keywordArray)
+    let expected = 'Normal expected travel time'
+    if (travelDuration.toFixed(2) < output.duration) {
+      let timeDiff = utilities.timeDifference(output.duration)
+      expected = `Your journey is estimated to be ${timeDiff} longer than normal.`
+    }
+    return {
+      duration: (routes.legs[0].duration.value / 60).toFixed(2),
+      from: routes.legs[0].start_address,
+      to: routes.legs[0].end_address,
+      keywords,
+      steps: routes.legs[0].steps,
+      warnings: routes.warnings || [],
+      expected
+    }
+  })
 }
 
-flow.requestTwitter = async () => {
+async function requestTwitter (output) {
   try {
-    console.log('Twitter Request')
     const loc = utilities.checkOrigin()
     const twitterParams = {
       count: details.twitter.count,
@@ -75,38 +71,36 @@ flow.requestTwitter = async () => {
       lang: details.lang,
       result_type: 'recent'
     }
-    // let searchKeywords = output.steps
-    // searchKeywords.map(keyword => {})
-    twitterParams['q'] = 'M20'
-    TwitterClient.get('search/tweets', twitterParams, (error, tweets, response) => {
-      if (error) console.log('++ requestTwitter get', error)
-      const hoursBefore = utilities.hoursBefore()
-      tweets.statuses.map(tweet => {
-        console.log(tweet.created_at)
-        if (tweet.created_at > hoursBefore) {
-          output['twitter'].push({
-            text: tweet.text
-          })
-        }
+    await output.keywords.map(keyword => {
+      twitterParams['q'] = 'M20'
+      TwitterClient.get('search/tweets', twitterParams, (error, tweets, response) => {
+        if (error) console.log(error)
+        const hoursBefore = utilities.hoursBefore()
+        tweets.statuses.map(tweet => {
+          if (tweet.created_at > hoursBefore) {
+            output['twitter'].push({
+              text: tweet.text
+            })
+          }
+        })
       })
     })
     return output
-  } catch (err) {
-    console.error('++ requestTwitter flow', err)
+  } catch (error) {
+    console.error('++ requestTwitter flow', error)
   }
 }
 
-flow.notifyUser = async () => {
+async function notifyUser (output) {
   try {
-    console.log('Sending data')
-    const nm = connect.nodemailer
+    const mailer = connect.nodemailer
     let transporter = nodemailer.createTransport({
-      host: nm.smtp,
-      port: nm.port,
+      host: mailer.smtp,
+      port: mailer.port,
       secure: true,
       auth: {
-        user: nm.email,
-        pass: nm.password
+        user: mailer.email,
+        pass: mailer.password
       }
     })
     const mailOptions = {
@@ -116,21 +110,18 @@ flow.notifyUser = async () => {
       text: 'test',
       html: '<b>test</b>'
     }
-
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) return console.log(error)
       console.log('Message sent:', info.response)
     })
-  } catch (err) {
-    console.error(err)
+  } catch (error) {
+    console.error(error)
   }
 }
 
-flow.commuteCheck = async (notify) => {
-  console.log(await flow.requestGoogle())
-  console.log(await flow.requestTwitter())
-  if (notify) {
-    console.log(await flow.notifyUser())
-  }
-  console.log('All done')
+flow.commuteCheck = () => {
+  return requestGoogle(output)
+  .then(requestTwitter(output))
+  .then(console.log(output))
+  // .then(notifyUser(output))
 }
