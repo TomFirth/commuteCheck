@@ -30,36 +30,41 @@ const TwitterClient = new Twitter({
 const flow = module.exports = {}
 
 async function requestGoogle (output) {
-  const loc = utilities.checkOrigin()
-  const travelDuration = utilities.expectedTravelDuration()
-  await googleMaps.directions({
-    origin: loc.origin,
-    destination: loc.destination
-  }, (error, response) => {
-    if (error) console.log(error)
-    const routes = response.json.routes[0]
-    routes.legs[0].steps.map((step, instruction) => {
-      output.steps.push(step.html_instructions)
-      let keyword = utilities.filterGoogleResponse(step.html_instructions)
-      keywordArray.push(keyword)
-      keywordArray = keywordArray.filter((x, i, a) => a.indexOf(x) === i)
+  const GoogleResponse = await (
+    new Promise((resolve, reject) => {
+      const loc = utilities.checkOrigin()
+      const travelDuration = utilities.expectedTravelDuration()
+      googleMaps.directions({
+        origin: loc.origin,
+        destination: loc.destination
+      }, (error, response) => {
+        if (error) resolve(error)
+        const routes = response.json.routes[0]
+        routes.legs[0].steps.map((step, instruction) => {
+          output.steps.push(step.html_instructions)
+          let keyword = utilities.filterGoogleResponse(step.html_instructions)
+          keywordArray.push(keyword)
+          keywordArray = keywordArray.filter((x, i, a) => a.indexOf(x) === i)
+        })
+        keywords.push(keywordArray)
+        let expected = 'Normal expected travel time'
+        if (travelDuration.toFixed(2) < output.duration) {
+          let timeDiff = utilities.timeDifference(output.duration)
+          expected = `Your journey is estimated to be ${timeDiff} longer than normal.`
+        }
+        resolve({
+          duration: (routes.legs[0].duration.value / 60).toFixed(2),
+          from: routes.legs[0].start_address,
+          to: routes.legs[0].end_address,
+          keywords,
+          steps: routes.legs[0].steps,
+          warnings: routes.warnings || [],
+          expected
+        })
+      })
     })
-    keywords.push(keywordArray)
-    let expected = 'Normal expected travel time'
-    if (travelDuration.toFixed(2) < output.duration) {
-      let timeDiff = utilities.timeDifference(output.duration)
-      expected = `Your journey is estimated to be ${timeDiff} longer than normal.`
-    }
-    return {
-      duration: (routes.legs[0].duration.value / 60).toFixed(2),
-      from: routes.legs[0].start_address,
-      to: routes.legs[0].end_address,
-      keywords,
-      steps: routes.legs[0].steps,
-      warnings: routes.warnings || [],
-      expected
-    }
-  })
+  )
+  return GoogleResponse
 }
 
 async function requestTwitter (output) {
@@ -71,7 +76,7 @@ async function requestTwitter (output) {
       lang: details.lang,
       result_type: 'recent'
     }
-    await output.keywords.map(keyword => {
+    const TwitterResponse = await output.keywords.map(keyword => {
       twitterParams['q'] = 'M20'
       TwitterClient.get('search/tweets', twitterParams, (error, tweets, response) => {
         if (error) console.log(error)
@@ -85,7 +90,7 @@ async function requestTwitter (output) {
         })
       })
     })
-    return output
+    return TwitterResponse
   } catch (error) {
     console.error('++ requestTwitter flow', error)
   }
@@ -123,5 +128,5 @@ flow.commuteCheck = () => {
   return requestGoogle(output)
   .then(requestTwitter(output))
   .then(console.log(output))
-  // .then(notifyUser(output))
+  .then(notifyUser(output))
 }
