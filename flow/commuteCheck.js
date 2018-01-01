@@ -5,6 +5,7 @@ const utilities = require('../libs/utilities')
 
 const connect = require('../config/connect')
 const details = require('../config/details')
+const includes = require('../config/includes')
 
 const googleMaps = require('@google/maps')
 .createClient({
@@ -16,8 +17,13 @@ let output = {
   steps: [],
   twitter: []
 }
-let keywords = []
 let keywordArray = []
+
+if (includes.length > 0) {
+  includes.forEach(keyword => {
+    keywordArray.push(keyword)
+  })
+}
 
 const TwitterClient = new Twitter({
   consumer_key: connect.twitter.consumerKey,
