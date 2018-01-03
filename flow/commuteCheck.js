@@ -79,21 +79,23 @@ async function requestTwitter (output) {
       lang: details.lang,
       result_type: 'recent'
     }
-    const TwitterResponse = await output.keywords[0].map(keyword => {
-      twitterParams['q'] = keyword
-      TwitterClient.get('search/tweets', twitterParams, (error, tweets, response) => {
-        if (error) console.log(error)
-        const hoursBefore = utilities.hoursBefore()
-        tweets.statuses.map(tweet => {
-          if (tweet.created_at > hoursBefore) {
-            output['twitter'].push({
-              text: tweet.text
-            })
-          }
+    if (output.keywords.length > 0) {
+      const TwitterResponse = await output.keywords[0].map(keyword => {
+        twitterParams['q'] = keyword
+        TwitterClient.get('search/tweets', twitterParams, (error, tweets, response) => {
+          if (error) console.log(error)
+          const hoursBefore = utilities.hoursBefore()
+          tweets.statuses.map(tweet => {
+            if (tweet.created_at > hoursBefore) {
+              output['twitter'].push({
+                text: tweet.text
+              })
+            }
+          })
         })
       })
-    })
-    return TwitterResponse
+      return TwitterResponse
+    }
   } catch (error) {
     console.error('++ requestTwitter flow', error)
   }
