@@ -5,3 +5,4 @@ config/includes.json
 *.log
 node_modules
 TODO.md
+.env

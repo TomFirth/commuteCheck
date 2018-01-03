@@ -3,13 +3,14 @@ const Twitter = require('twitter')
 
 const utilities = require('../libs/utilities')
 
-const connect = require('../config/connect')
 const details = require('../config/details')
 const includes = require('../config/includes')
 
+require('dotenv').config()
+
 const googleMaps = require('@google/maps')
 .createClient({
-  key: process.env.google_apiKey || connect.google.apiKey
+  key: process.env.google_apiKey
 })
 
 let output = {
@@ -26,10 +27,10 @@ if (includes.length > 0) {
 }
 
 const TwitterClient = new Twitter({
-  consumer_key: process.env.twitter_consumerKey || connect.twitter.consumerKey,
-  consumer_secret: process.env.twitter_consumerSecret || connect.twitter.consumerSecret,
-  access_token_key: process.env.twitter_accessToken || connect.twitter.accessToken,
-  access_token_secret: process.env.twitter_accessTokenSecret || connect.twitter.accessTokenSecret,
+  consumer_key: process.env.twitter_consumerKey,
+  consumer_secret: process.env.twitter_consumerSecret,
+  access_token_key: process.env.twitter_accessToken,
+  access_token_secret: process.env.twitter_accessTokenSecret,
   timeout_ms: 60 * 1000
 })
 
@@ -101,12 +102,12 @@ async function requestTwitter (output) {
 async function notifyUser (output) {
   try {
     let transporter = nodemailer.createTransport({
-      host: process.env.nodemailer_smtp || connect.nodemailer.smtp,
-      port: process.env.nodemailer_port || connect.nodemailer.port,
+      host: process.env.nodemailer_smtp,
+      port: process.env.nodemailer_port,
       secure: true,
       auth: {
-        user: process.env.nodemailer_email || connect.nodemailer.email,
-        pass: process.env.nodemailer_password || connect.nodemailer.password
+        user: process.env.nodemailer_email,
+        pass: process.env.nodemailer_password
       }
     })
     const text = `${output.from} to ${output.to} will take <b>${output.duration}</b><br />
