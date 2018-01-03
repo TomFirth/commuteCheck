@@ -66,14 +66,3 @@ utilities.timeDifference = (expected) => {
   let timeDiff = expected - (details.duration).toFixed(2)
   return (timeDiff).toFixed(2)
 }
-
-// split 24hr time into hours and minutes
-utilities.timeForCron = (time) => {
-  var timeArray = time.split(':')
-  var hour = parseInt(timeArray[0])
-  var minutes = parseInt(timeArray[1])
-  return {
-    hour,
-    minutes
-  }
-}
