@@ -1,7 +1,5 @@
 .DS_Store
 .vscode
-config/connect.json
-config/includes.json
 *.log
 node_modules
 TODO.md
