@@ -4,7 +4,7 @@
   "description": "Check for keywords that warn against accidents on my commute",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
+    "start": "NODE_ENV=production node app.js",
     "dev": "nodemon app.js",
     "test": "standard"
   },

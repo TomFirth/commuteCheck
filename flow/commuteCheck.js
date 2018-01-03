@@ -6,7 +6,7 @@ const utilities = require('../libs/utilities')
 const details = require('../config/details')
 const includes = require('../config/includes')
 
-require('dotenv').config()
+if (process.env.NODE_ENV !== 'production') require('dotenv').config()
 
 const googleMaps = require('@google/maps')
 .createClient({
