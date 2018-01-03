@@ -1,8 +1,10 @@
-const http = require('http')
+const https = require('http')
 const flow = require('./flow/commuteCheck')
 
-http.createServer((req, res) => {
-  res.writeHead(200, {'Content-Type': 'text/html'})
-  flow.commuteCheck()
-  res.end()
+flow.commuteCheck()
+
+https.createServer((req, res) => {
+  res.statusCode = 200
+  res.setHeader('Content-Type', 'text/plain')
+  res.end('Nothing to see here.')
 }).listen(8080)
