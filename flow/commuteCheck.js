@@ -3,13 +3,12 @@ const Twitter = require('twitter')
 
 const utilities = require('../libs/utilities')
 
-const connect = require('../config/connect')
 const details = require('../config/details')
 const includes = require('../config/includes')
 
 const googleMaps = require('@google/maps')
 .createClient({
-  key: connect.google.apiKey
+  key: process.env.google_apiKey
 })
 
 let output = {
@@ -26,10 +25,10 @@ if (includes.length > 0) {
 }
 
 const TwitterClient = new Twitter({
-  consumer_key: connect.twitter.consumerKey,
-  consumer_secret: connect.twitter.consumerSecret,
-  access_token_key: connect.twitter.accessToken,
-  access_token_secret: connect.twitter.accessTokenSecret,
+  consumer_key: process.env.twitter_consumerKey,
+  consumer_secret: process.env.twitter_consumerSecret,
+  access_token_key: process.env.twitter_accessToken,
+  access_token_secret: process.env.twitter_accessTokenSecret,
   timeout_ms: 60 * 1000
 })
 
@@ -100,14 +99,13 @@ async function requestTwitter (output) {
 
 async function notifyUser (output) {
   try {
-    const mailer = connect.nodemailer
     let transporter = nodemailer.createTransport({
-      host: mailer.smtp,
-      port: mailer.port,
+      host: process.env.nodemailer_smtp,
+      port: process.env.nodemailer_port,
       secure: true,
       auth: {
-        user: mailer.email,
-        pass: mailer.password
+        user: process.env.nodemailer_email,
+        pass: process.env.nodemailer_password
       }
     })
     const text = `${output.from} to ${output.to} will take <b>${output.duration}</b><br />

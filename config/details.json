@@ -1,0 +1,22 @@
+{
+  "duration": 32.0,
+  "email": "tom.firth84@gmail.com",
+  "home": {
+    "leave": "07:05",
+    "postcode": "ME160JG",
+    "lat": "51.27556",
+    "long": "0.501699"
+  },
+  "lang": "en",
+  "radius": "20mi",
+  "twitter": {
+    "count": 100,
+    "hoursBefore": 3
+  },
+  "work": {
+    "leave": "16:05",
+    "postcode": "TN256SS",
+    "lat": "51.1131",
+    "long": "0.9691"
+  }
+}
