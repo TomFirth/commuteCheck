@@ -16,8 +16,7 @@ const googleMaps = require('@google/maps')
 let output = {
   keywords: [],
   steps: [],
-  twitter: [],
-  warnings: []
+  twitter: []
 }
 let keywordArray = []
 
@@ -88,7 +87,7 @@ async function requestTwitter (output) {
           const hoursBefore = utilities.hoursBefore()
           tweets.statuses.map(tweet => {
             if (tweet.created_at > hoursBefore) {
-              output['twitter'].push({
+              output.twitter.push({
                 text: tweet.text
               })
             }
@@ -136,5 +135,8 @@ ${output.twitter.length > 0 ? '<b>Twitter alerts:</b>' + output.twitter + '<br /
 flow.commuteCheck = () => {
   return requestGoogle(output)
   .then(() => requestTwitter(output))
-  .then(() => notifyUser(output))
+  // .then(() => notifyUser(output))
+  .catch(error => {
+    console.log('Commute Check Flow Error', error)
+  })
 }
