@@ -135,7 +135,7 @@ ${output.twitter.length > 0 ? '<b>Twitter alerts:</b>' + output.twitter + '<br /
 flow.commuteCheck = () => {
   return requestGoogle(output)
   .then(() => requestTwitter(output))
-  // .then(() => notifyUser(output))
+  .then(() => notifyUser(output))
   .catch(error => {
     console.log('Commute Check Flow Error', error)
   })
