@@ -16,7 +16,8 @@ const googleMaps = require('@google/maps')
 let output = {
   keywords: [],
   steps: [],
-  twitter: []
+  twitter: [],
+  warnings: []
 }
 let keywordArray = []
 
@@ -61,7 +62,7 @@ async function requestGoogle (output) {
         output['duration'] = (routes.legs[0].duration.value / 60).toFixed(2)
         output['from'] = routes.legs[0].start_address
         output['to'] = routes.legs[0].end_address
-        output['warnings'] = routes.warnings || []
+        output['warnings'] = routes.warnings
         output['expected'] = expected
         resolve()
       })
