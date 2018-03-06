@@ -98,12 +98,19 @@ async function requestTwitter (output) {
       return TwitterResponse
     }
   } catch (error) {
-    console.error('++ requestTwitter flow', error)
+    throw error
   }
 }
 
 async function notifyUser (output) {
   try {
+    const travelDuration = utilities.expectedTravelDuration()
+    // check if there is any need for the user to be notified
+    if (travelDuration.toFixed(2) > output.duration &&
+    output.warnings.length === 0 &&
+    output.twitter.length === 0) {
+      return false
+    }
     let transporter = nodemailer.createTransport({
       host: process.env.nodemailer_smtp,
       port: process.env.nodemailer_port,
@@ -129,7 +136,7 @@ ${output.twitter.length > 0 ? '<b>Twitter alerts:</b>' + output.twitter + '<br /
       console.log('Message sent:', info.response)
     })
   } catch (error) {
-    console.error(error)
+    throw error
   }
 }
 
@@ -138,6 +145,6 @@ flow.commuteCheck = () => {
   .then(() => requestTwitter(output))
   .then(() => notifyUser(output))
   .catch(error => {
-    console.log('Commute Check Flow Error', error)
+    throw error
   })
 }
