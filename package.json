@@ -14,10 +14,10 @@
   },
   "license": "ISC",
   "dependencies": {
-    "@google/maps": "^0.4.5",
-    "dotenv": "4.0.0",
-    "moment": "^2.19.4",
-    "nodemailer": "^4.4.0",
+    "@google/maps": "^0.4.6",
+    "dotenv": "5.0.1",
+    "moment": "^2.22.1",
+    "nodemailer": "^4.6.4",
     "twitter": "^1.7.1"
   },
   "devDependencies": {
