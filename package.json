@@ -15,7 +15,7 @@
   "license": "ISC",
   "dependencies": {
     "@google/maps": "^0.4.6",
-    "dotenv": "5.0.1",
+    "dotenv": "^5.0.1",
     "moment": "^2.22.1",
     "nodemailer": "^4.6.4",
     "twitter": "^1.7.1"
