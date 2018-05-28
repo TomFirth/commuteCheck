@@ -4,8 +4,8 @@
   "description": "Check for keywords that warn against accidents on my commute",
   "main": "app.js",
   "scripts": {
-    "start": "NODE_ENV=production node app.js",
-    "dev": "nodemon app.js",
+    "start": "node app.js",
+    "dev": "NODE_ENV=development nodemon app.js",
     "test": "standard"
   },
   "repository": {
@@ -17,7 +17,7 @@
     "@google/maps": "^0.4.6",
     "dotenv": "^5.0.1",
     "moment": "^2.22.1",
-    "nodemailer": "^4.6.4",
+    "nodemailer": "^4.6.5",
     "twitter": "^1.7.1"
   },
   "devDependencies": {

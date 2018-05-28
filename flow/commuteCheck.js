@@ -6,12 +6,12 @@ const utilities = require('../libs/utilities')
 const details = require('../config/details')
 const includes = require('../config/includes')
 
-if (process.env.NODE_ENV !== 'production') require('dotenv').config()
+if (process.env.NODE_ENV === 'development') require('dotenv').config()
 
 const googleMaps = require('@google/maps')
-.createClient({
-  key: process.env.google_apiKey
-})
+  .createClient({
+    key: process.env.google_apiKey
+  })
 
 let output = {
   keywords: [],
@@ -98,7 +98,7 @@ async function requestTwitter (output) {
       return TwitterResponse
     }
   } catch (error) {
-    throw error
+    throw new Error(error)
   }
 }
 
@@ -109,7 +109,8 @@ async function notifyUser (output) {
     if (travelDuration.toFixed(2) > output.duration &&
     output.warnings.length === 0 &&
     output.twitter.length === 0) {
-      return false
+      console.info(output.expected)
+      process.exit(1)
     }
     let transporter = nodemailer.createTransport({
       host: process.env.nodemailer_smtp,
@@ -132,19 +133,19 @@ ${output.twitter.length > 0 ? '<b>Twitter alerts:</b>' + output.twitter + '<br /
       html: text
     }
     transporter.sendMail(mailOptions, (error, info) => {
-      if (error) return console.log(error)
-      console.log('Message sent:', info.response)
+      if (error) throw new Error(error)
+      console.info('Message sent:', info.response)
     })
   } catch (error) {
-    throw error
+    throw new Error(error)
   }
 }
 
 flow.commuteCheck = () => {
   return requestGoogle(output)
-  .then(() => requestTwitter(output))
-  .then(() => notifyUser(output))
-  .catch(error => {
-    throw error
-  })
+    .then(() => requestTwitter(output))
+    .then(() => notifyUser(output))
+    .catch(error => {
+      throw new Error(error)
+    })
 }
