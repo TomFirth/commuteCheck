@@ -106,9 +106,7 @@ async function notifyUser (output) {
   try {
     const travelDuration = utilities.expectedTravelDuration()
     // check if there is any need for the user to be notified
-    if (travelDuration.toFixed(2) > output.duration &&
-    output.warnings.length === 0 &&
-    output.twitter.length === 0) {
+    if (travelDuration.toFixed(2) > output.duration) {
       console.info(output.expected)
       process.exit(1)
     }

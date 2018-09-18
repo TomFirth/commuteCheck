@@ -36,15 +36,15 @@ utilities.checkOrigin = () => {
 utilities.filterGoogleResponse = (string) => {
   let stringArray = []
   string = string.match(/<b>(.*?)<\/b>/g)
-  .map(string => {
-    string = string.replace(/<\/?b>/g, '')
-    if (excludes.indexOf(string) === -1) {
-      if (!isNaN(string)) {
-        string = 'Junction ' + string
+    .map(string => {
+      string = string.replace(/<\/?b>/g, '')
+      if (excludes.indexOf(string) === -1) {
+        if (!isNaN(string)) {
+          string = 'Junction ' + string
+        }
+        stringArray.push(string)
       }
-      stringArray.push(string)
-    }
-  })
+    })
   string = stringArray.join(' ')
   return string
 }
